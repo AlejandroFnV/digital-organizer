@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 import {
+  AtSign,
   Calendar,
   ChevronUp,
-  Home,
   Inbox,
   Search,
   Settings,
@@ -32,29 +32,9 @@ import { redirect } from "next/navigation";
 // Menu items.
 const items = [
   {
-    title: "Home",
-    url: "#",
-    icon: Home
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings
+    title: "Cuentas",
+    url: "/accounts",
+    icon: AtSign
   }
 ];
 

@@ -19,7 +19,7 @@ export default function SignInForm() {
       {
         email,
         password,
-        callbackURL: "/dashboard" // a url to redirect to after the user verifies their email (optional)
+        callbackURL: "/accounts" // a url to redirect to after the user verifies their email (optional)
       },
       {
         onRequest: (ctx) => {

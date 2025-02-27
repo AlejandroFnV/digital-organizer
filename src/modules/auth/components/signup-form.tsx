@@ -23,7 +23,7 @@ export default function SignUpForm() {
         email, // user email address
         password, // user password -> min 8 characters by default
         name, // user display name
-        callbackURL: "/dashboard" // a url to redirect to after the user verifies their email (optional)
+        callbackURL: "/accounts" // a url to redirect to after the user verifies their email (optional)
       },
       {
         onRequest: (ctx) => {

@@ -21,13 +21,13 @@ model OnlineAccount {
   createdAt DateTime
   updatedAt DateTime
 
-  Category Category[]
+  // Category Category[]
 }
 
 model Category {
-  id        String          @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
-  accounts  OnlineAccount[]
+  // accounts  OnlineAccount[]
   createdAt DateTime
   updatedAt DateTime
 }

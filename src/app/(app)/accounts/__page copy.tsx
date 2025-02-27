@@ -10,8 +10,6 @@ export default async function DigitalLifePage() {
   if (!session) {
     return redirect("/");
   }
-  
-  console.log({ session });
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-background to-muted/20'>
