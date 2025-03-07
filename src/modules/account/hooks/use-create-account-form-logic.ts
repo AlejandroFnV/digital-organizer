@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createAccount } from "../actions/actions";
 import { toast } from "sonner";
 
-export const useCreateAccountFormLogic = () => {
+export const useCreateAccountFormLogic = ({ onClose }: { onClose: () => void }) => {
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
@@ -38,17 +38,6 @@ export const useCreateAccountFormLogic = () => {
     return "bg-green-500";
   };
 
-  // const generatePassword = () => {
-  //   const chars =
-  //     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-  //   let newPassword = "";
-  //   for (let i = 0; i < 16; i++) {
-  //     newPassword += chars.charAt(Math.floor(Math.random() * chars.length));
-  //   }
-  //   setPassword(newPassword);
-  //   toast.success("Contraseña generada");
-  // };
-
   const generatePassword = () => {
     const chars =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
@@ -58,34 +47,13 @@ export const useCreateAccountFormLogic = () => {
     }
     setPassword(newPassword);
     form.setValue("password", newPassword);
-    return newPassword; // Devolvemos la nueva contraseña
+    return newPassword; // Return the generated password
   };
 
   const onSubmit = async (values: AccountFormValues) => {
-    console.log({ values });
-
-    // const newOnlineAccount = {
-    //   title: formData.get("title"),
-    //   tiurlle: formData.get("url"),
-    //   username: formData.get("username"),
-    //   password: formData.get("password"),
-    //   notes: formData.get("notes")
-    // };
-
-    // const result = AccountSchema.safeParse(newOnlineAccount);
-    // if (!result.success) {
-    //   let errorMessage = "";
-
-    //   result.error.issues.forEach((issue) => {
-    //     errorMessage =
-    //       errorMessage + issue.path[0] + ": " + issue.message + ". ";
-    //   });
-
-    //   toast.error(errorMessage);
-    // }
-
     try {
       await createAccount(values);
+      onClose()
       toast.success("Cuenta creada exitosamente");
     } catch (error) {
       console.log({ error });
