@@ -10,7 +10,7 @@ export async function createAccount(values: any) {
     await prisma.onlineAccount.create({
       data: {
         title: values.title,
-        url: values.url || "",
+        website: values.url || "",
         username: values.username,
         password: values.password,
         notes: values.notes || "",
