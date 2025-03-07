@@ -2,9 +2,11 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import AccountCard from "@/modules/account/components/card/account-card";
-import { KeyRound, PlusCircle } from "lucide-react";
+import { KeyRound, PlusCircle, Search } from "lucide-react";
 import AddAccountBtn from "@/modules/account/components/button/add-account-btn";
 import { prisma } from "@/lib/db";
+import { Input } from "@/components/ui/input";
+import { OnlineAccount } from "@prisma/client";
 
 export default async function DigitalLifePage() {
   const session = await auth.api.getSession({
@@ -15,68 +17,7 @@ export default async function DigitalLifePage() {
     return redirect("/");
   }
 
-  // This would come from your database in a real app
-  // const accounts = [
-  //   {
-  //     id: "1",
-  //     name: "Gmail",
-  //     username: "user@gmail.com",
-  //     website: "https://gmail.com",
-  //     category: "Email",
-  //     icon: "https://www.google.com/gmail/about/static/images/logo-gmail.png?fingerprint=c2eaf4aae389c3f885e97081bb197b97",
-  //     lastUpdated: "2023-10-15"
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Spotify",
-  //     username: "username",
-  //     website: "https://spotify.com",
-  //     category: "Entertainment",
-  //     icon: "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_RGB_Green.png",
-  //     lastUpdated: "2023-11-20"
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "GitHub",
-  //     username: "devuser",
-  //     website: "https://github.com",
-  //     category: "Development",
-  //     icon: "https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png",
-  //     lastUpdated: "2023-12-05"
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Amazon",
-  //     username: "user@email.com",
-  //     website: "https://amazon.com",
-  //     category: "Shopping",
-  //     icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png",
-  //     lastUpdated: "2024-01-10"
-  //   },
-  //   {
-  //     id: "5",
-  //     name: "Netflix",
-  //     username: "user@email.com",
-  //     website: "https://netflix.com",
-  //     category: "Entertainment",
-  //     icon: "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2016.png",
-  //     lastUpdated: "2024-02-15"
-  //   },
-  //   {
-  //     id: "6",
-  //     name: "Twitter",
-  //     username: "@username",
-  //     website: "https://twitter.com",
-  //     category: "Social",
-  //     icon: "https://about.twitter.com/content/dam/about-twitter/x/brand-toolkit/logo-black.png.twimg.1920.png",
-  //     lastUpdated: "2024-02-20"
-  //   }
-  // ];
-
-  // const accounts = [];
-
   const accounts = await prisma.onlineAccount.findMany();
-  console.log({ accounts });
 
   if (accounts.length === 0) {
     return (
@@ -117,11 +58,26 @@ export default async function DigitalLifePage() {
   }
 
   return (
-    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4'>
-      <AddAccountBtn />
-      {accounts.map((account) => (
-        <AccountCard key={account.id} account={account} />
-      ))}
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold">Mis Cuentas</h1>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Buscar cuentas..." 
+              className="pl-9 h-10 w-full"
+            />
+          </div>
+          <AddAccountBtn />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {accounts.map((account: OnlineAccount) => (
+          <AccountCard key={account.id} account={account} />
+        ))}
+      </div>
     </div>
   );
 }
