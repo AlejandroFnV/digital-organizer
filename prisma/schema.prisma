@@ -14,7 +14,7 @@ datasource db {
 model OnlineAccount {
   id        String   @id @default(cuid())
   title     String
-  url       String?
+  website   String?
   username  String
   password  String
   notes     String?
