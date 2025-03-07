@@ -5,10 +5,11 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Copy, ExternalLink, MoreHorizontal } from "lucide-react";
+import { Lock, Copy, ExternalLink, MoreHorizontal, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,19 +18,10 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-
-interface Account {
-  id: string;
-  name: string;
-  username: string;
-  website: string;
-  category: string;
-  icon: string;
-  lastUpdated: string;
-}
+import { OnlineAccount } from "@prisma/client";
 
 interface AccountCardProps {
-  account: Account;
+  account: OnlineAccount;
 }
 
 export default function AccountCard({ account }: AccountCardProps) {
@@ -47,152 +39,123 @@ export default function AccountCard({ account }: AccountCardProps) {
   };
 
   const handleVisitWebsite = () => {
-    window.open(account.website, "_blank");
+    if (account.website) {
+      window.open(account.website, "_blank");
+    }
+  };
+
+  // Extract domain from website for display
+  const getDomain = (url: string) => {
+    try {
+      return new URL(url).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
   };
 
   return (
-    <Card className='overflow-hidden transition-all hover:shadow-md'>
-      <CardHeader className='p-4 pb-0 flex justify-between items-start'>
-        <div className='flex items-center gap-3'>
-          <div className='h-10 w-10 overflow-hidden rounded-md bg-muted flex items-center justify-center'>
-            <img
-              // src={account.icon || "/placeholder.svg"}
-              alt={account.name}
-              className='h-full w-full object-contain'
-              // onError={(e) => {
-              //   e.currentTarget.src = "/placeholder.svg?height=40&width=40";
-              // }}
-            />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-7 flex items-center justify-center text-lg font-semibold object-center text-primary bg-primary/10 rounded-full">
+            <span>{account.title.charAt(0).toUpperCase()}</span>
           </div>
-          <div>
-            <h3 className='font-medium text-base'>{account.name}</h3>
-            <p className='text-xs text-muted-foreground'>{account.category}</p>
-          </div>
+          <CardTitle className="text-base font-medium">{account.title}</CardTitle>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant='ghost' size='icon' className='h-8 w-8'>
-              <MoreHorizontal className='h-4 w-4' />
-              <span className='sr-only'>More options</span>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">More options</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
+          <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={handleVisitWebsite}>
-              <ExternalLink className='mr-2 h-4 w-4' />
+              <ExternalLink className="mr-2 h-4 w-4" />
               Visit website
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleCopyUsername}>
-              <Copy className='mr-2 h-4 w-4' />
+              <Copy className="mr-2 h-4 w-4" />
               Copy username
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleCopyPassword}>
-              <Lock className='mr-2 h-4 w-4' />
+              <Lock className="mr-2 h-4 w-4" />
               Copy password
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='mr-2 h-4 w-4'
-              >
-                <path d='M12 20h9' />
-                <path d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z' />
-              </svg>
+              <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className='text-destructive focus:text-destructive'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='mr-2 h-4 w-4'
-              >
-                <path d='M3 6h18' />
-                <path d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6' />
-                <path d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2' />
-                <line x1='10' x2='10' y1='11' y2='17' />
-                <line x1='14' x2='14' y1='11' y2='17' />
-              </svg>
+            <DropdownMenuItem className="text-destructive focus:text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className='p-4'>
-        <div className='space-y-2'>
-          <div className='flex justify-between items-center'>
-            <span className='text-sm text-muted-foreground'>Username</span>
-            <div className='flex items-center gap-1'>
-              <span className='text-sm font-medium'>{account.username}</span>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-6 w-6'
-                onClick={handleCopyUsername}
-              >
-                <Copy className='h-3 w-3' />
-                <span className='sr-only'>Copy username</span>
-              </Button>
-            </div>
+
+      <CardContent className="p-0">
+        {/* Username */}
+        <div className="border-t border-border/30 px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Username</span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium">{account.username}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleCopyUsername}
+            >
+              <Copy className="h-3 w-3" />
+              <span className="sr-only">Copy username</span>
+            </Button>
           </div>
-          <div className='flex justify-between items-center'>
-            <span className='text-sm text-muted-foreground'>Password</span>
-            <div className='flex items-center gap-1'>
-              <span className='text-sm font-medium'>
-                {showPassword ? "password123" : "••••••••••••"}
+        </div>
+
+        {/* Password */}
+        <div className="border-t border-border/30 px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Password</span>
+          <div className="flex items-center gap-1">
+            <span className="text-sm font-medium font-mono">
+              {showPassword ? "password123" : "••••••••••••"}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+              <span className="sr-only">
+                {showPassword ? "Hide password" : "Show password"}
               </span>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-6 w-6'
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                <Lock className='h-3 w-3' />
-                <span className='sr-only'>
-                  {showPassword ? "Hide password" : "Show password"}
-                </span>
-              </Button>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='h-6 w-6'
-                onClick={handleCopyPassword}
-              >
-                <Copy className='h-3 w-3' />
-                <span className='sr-only'>Copy password</span>
-              </Button>
-            </div>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={handleCopyPassword}
+            >
+              <Copy className="h-3 w-3" />
+              <span className="sr-only">Copy password</span>
+            </Button>
           </div>
         </div>
       </CardContent>
-      <CardFooter className='p-4 pt-0 flex justify-between'>
-        <span className='text-xs text-muted-foreground'>
-          Updated: {new Date(account.lastUpdated).toLocaleDateString()}
-        </span>
-        <Button
-          variant='outline'
-          size='sm'
-          className='h-8 px-2 text-xs'
-          onClick={handleVisitWebsite}
-        >
-          <ExternalLink className='mr-1 h-3 w-3' />
-          Visit
-        </Button>
-      </CardFooter>
+
+      {account.website && (
+        <CardFooter className="p-0">
+          <Button
+            variant="ghost"
+            className="w-full rounded-none h-10 border-t border-border/30 text-primary"
+            onClick={handleVisitWebsite}
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Visit {getDomain(account.website)}
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
