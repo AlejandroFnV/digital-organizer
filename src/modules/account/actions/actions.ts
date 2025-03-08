@@ -4,8 +4,6 @@ import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function createAccount(values: any) {
-  console.log({ values });
-
   try {
     await prisma.onlineAccount.create({
       data: {
@@ -27,13 +25,13 @@ export async function createAccount(values: any) {
 }
 
 export async function editAccount(formData: FormData) {
-  await prisma.account.update({
+  await prisma.onlineAccount.update({
     where: {
       id: formData.get("id") as string
     },
     data: {
       title: formData.get("title") as string,
-      url: formData.get("url") as string,
+      website: formData.get("url") as string,
       username: formData.get("username") as string,
       password: formData.get("password") as string,
       notes: formData.get("notes") as string
@@ -44,7 +42,7 @@ export async function editAccount(formData: FormData) {
 }
 
 export async function deleteAccount(id: string) {
-  await prisma.account.delete({
+  await prisma.onlineAccount.delete({
     where: {
       id: id
     }
