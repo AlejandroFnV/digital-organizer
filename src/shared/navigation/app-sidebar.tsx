@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,15 +18,13 @@ import {
 import { auth } from "@/lib/auth";
 import {
   AtSign,
-  Calendar,
   ChevronUp,
-  Inbox,
-  Search,
-  Settings,
+  LogOut,
   User2
 } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { UserProfileDropdownItems } from "./user-profile-dropdown-items";
 
 // Menu items.
 const items = [
@@ -79,12 +76,7 @@ export async function AppSidebar() {
                 side='top'
                 className='w-[--radix-popper-anchor-width]'
               >
-                <DropdownMenuItem>
-                  <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Billing</span>
-                </DropdownMenuItem>
+                <UserProfileDropdownItems user={session?.user} />
                 <DropdownMenuItem>
                   <form
                     action={async () => {
@@ -95,9 +87,11 @@ export async function AppSidebar() {
                       redirect("/");
                     }}
                   >
-                    <button type='submit'>Sign out</button>
+                    <button className="flex items-center gap-2" type='submit'>
+                      <LogOut className='h-4 w-4' />
+                      <span>Cerrar sesión</span>
+                    </button>
                   </form>
-                  {/* <span>Sign out</span> */}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, ExternalLink, Eye, EyeOff, Pencil, Save } from "lucide-react";
+import { Copy, Eye, EyeOff, Pencil, Save } from "lucide-react";
 import { OnlineAccount } from "@prisma/client";
 import { useAccountCardLogic } from "../../hooks/use-account-card-logic";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -23,7 +16,7 @@ export default function AccountCard({ account }: AccountCardProps) {
   const {
     handleCopyPassword,
     handleCopyUsername,
-    handleVisitWebsite,
+    // handleVisitWebsite,
     handleDeleteAccount,
     handleUpdateAccount,
     showPassword,
@@ -39,7 +32,7 @@ export default function AccountCard({ account }: AccountCardProps) {
     title: account.title,
     website: account.website || ""
   });
-  
+
   const accountDomain = getDomain(account.website || "");
 
   const handleSaveChanges = async () => {
@@ -59,35 +52,35 @@ export default function AccountCard({ account }: AccountCardProps) {
           <div className="flex items-center justify-center flex-col gap-6">
             <img className="w-16 h-16 rounded-full" alt="" src={`https://logo.clearbit.com/${accountDomain}`} />
             {isEditing ? (
-              <Input 
+              <Input
                 value={editedAccount.title}
-                onChange={(e) => setEditedAccount({...editedAccount, title: e.target.value})}
+                onChange={(e) => setEditedAccount({ ...editedAccount, title: e.target.value })}
                 className="text-center font-bold"
               />
             ) : (
               <DialogTitle>{account.title}</DialogTitle>
             )}
           </div>
-          
+
           <div className="flex flex-col gap-4">
             {/* Usuario */}
             <div className="flex flex-col gap-2">
               <span className="text-secondary font-bold">Usuario</span>
               <div className="flex items-center justify-between">
                 {isEditing ? (
-                  <Input 
+                  <Input
                     value={editedAccount.username}
-                    onChange={(e) => setEditedAccount({...editedAccount, username: e.target.value})}
+                    onChange={(e) => setEditedAccount({ ...editedAccount, username: e.target.value })}
                     className="text-sm"
                   />
                 ) : (
                   <span className="text-sm text-gray-500">{account.username}</span>
                 )}
                 {!isEditing && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCopyUsername();
@@ -99,16 +92,16 @@ export default function AccountCard({ account }: AccountCardProps) {
                 )}
               </div>
             </div>
-            
+
             {/* Contraseña */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-secondary font-bold">Contraseña</span>
                 {!isEditing && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8"
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowPassword(!showPassword);
@@ -123,10 +116,10 @@ export default function AccountCard({ account }: AccountCardProps) {
               </div>
               <div className="flex items-center justify-between">
                 {isEditing ? (
-                  <Input 
+                  <Input
                     type={showPassword ? "text" : "password"}
                     value={editedAccount.password}
-                    onChange={(e) => setEditedAccount({...editedAccount, password: e.target.value})}
+                    onChange={(e) => setEditedAccount({ ...editedAccount, password: e.target.value })}
                     className="text-sm font-mono"
                   />
                 ) : (
@@ -135,10 +128,10 @@ export default function AccountCard({ account }: AccountCardProps) {
                   </span>
                 )}
                 {!isEditing && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleCopyPassword();
@@ -150,27 +143,27 @@ export default function AccountCard({ account }: AccountCardProps) {
                 )}
               </div>
             </div>
-            
+
             {/* Sitio web - solo visible en modo edición */}
             {isEditing && (
               <div className="flex flex-col gap-2">
                 <span className="text-secondary font-bold">Sitio web</span>
-                <Input 
+                <Input
                   value={editedAccount.website}
-                  onChange={(e) => setEditedAccount({...editedAccount, website: e.target.value})}
+                  onChange={(e) => setEditedAccount({ ...editedAccount, website: e.target.value })}
                   className="text-sm"
                   placeholder="https://ejemplo.com"
                 />
               </div>
             )}
-            
+
             {/* Botones de acción */}
             <div className="pt-4 border-t flex gap-2">
               {isEditing ? (
                 <>
-                  <Button 
-                    variant="outline" 
-                    className="w-1/2" 
+                  <Button
+                    variant="outline"
+                    className="w-1/2"
                     onClick={() => {
                       setIsEditing(false);
                       setEditedAccount({
@@ -183,9 +176,9 @@ export default function AccountCard({ account }: AccountCardProps) {
                   >
                     Cancelar
                   </Button>
-                  <Button 
-                    variant="default" 
-                    className="w-1/2" 
+                  <Button
+                    variant="default"
+                    className="w-1/2"
                     onClick={handleSaveChanges}
                   >
                     <Save className="h-4 w-4 mr-2" />
@@ -194,9 +187,9 @@ export default function AccountCard({ account }: AccountCardProps) {
                 </>
               ) : (
                 <>
-                  <Button 
-                    variant="outline" 
-                    className="w-1/2" 
+                  <Button
+                    variant="outline"
+                    className="w-1/2"
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsEditing(true);
@@ -205,9 +198,9 @@ export default function AccountCard({ account }: AccountCardProps) {
                     <Pencil className="h-4 w-4 mr-2" />
                     Editar
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    className="w-1/2" 
+                  <Button
+                    variant="destructive"
+                    className="w-1/2"
                     onClick={async (e) => {
                       e.stopPropagation();
                       await handleDeleteAccount();
