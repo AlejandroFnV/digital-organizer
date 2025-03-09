@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,153 +8,220 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lock, Copy, ExternalLink, MoreHorizontal, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import { Copy, ExternalLink, Eye, EyeOff, Pencil, Save } from "lucide-react";
 import { OnlineAccount } from "@prisma/client";
+import { useAccountCardLogic } from "../../hooks/use-account-card-logic";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 interface AccountCardProps {
   account: OnlineAccount;
 }
 
 export default function AccountCard({ account }: AccountCardProps) {
-  const [showPassword, setShowPassword] = useState(false);
+  const {
+    handleCopyPassword,
+    handleCopyUsername,
+    handleVisitWebsite,
+    handleDeleteAccount,
+    handleUpdateAccount,
+    showPassword,
+    setShowPassword,
+    getDomain
+  } = useAccountCardLogic(account);
 
-  const handleCopyUsername = () => {
-    navigator.clipboard.writeText(account.username);
-    toast.success("Username copied to clipboard");
-  };
+  const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAccount, setEditedAccount] = useState({
+    username: account.username,
+    password: account.password,
+    title: account.title,
+    website: account.website || ""
+  });
+  
+  const accountDomain = getDomain(account.website || "");
 
-  const handleCopyPassword = () => {
-    // In a real app, you would retrieve the password from a secure store
-    navigator.clipboard.writeText("••••••••••••");
-    toast.success("Password copied to clipboard");
-  };
-
-  const handleVisitWebsite = () => {
-    if (account.website) {
-      window.open(account.website, "_blank");
-    }
-  };
-
-  // Extract domain from website for display
-  const getDomain = (url: string) => {
-    try {
-      return new URL(url).hostname.replace('www.', '');
-    } catch {
-      return url;
-    }
+  const handleSaveChanges = async () => {
+    await handleUpdateAccount(account.id, editedAccount);
+    setIsEditing(false);
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-7 flex items-center justify-center text-lg font-semibold object-center text-primary bg-primary/10 rounded-full">
-            <span>{account.title.charAt(0).toUpperCase()}</span>
-          </div>
-          <CardTitle className="text-base font-medium">{account.title}</CardTitle>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">More options</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleVisitWebsite}>
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Visit website
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopyUsername}>
-              <Copy className="mr-2 h-4 w-4" />
-              Copy username
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCopyPassword}>
-              <Lock className="mr-2 h-4 w-4" />
-              Copy password
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive focus:text-destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardHeader>
+    <>
+      <div onClick={() => setOpen(true)} className="shadow border rounded-md items-center justify-center py-8 flex flex-col gap-4 cursor-pointer">
+        <img className="w-16 h-16 rounded-full" alt="" src={`https://logo.clearbit.com/${accountDomain}`} />
+        <span className="text-secondary font-bold">{account.title}</span>
+      </div>
 
-      <CardContent className="p-0">
-        {/* Username */}
-        <div className="border-t border-border/30 px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Username</span>
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium">{account.username}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={handleCopyUsername}
-            >
-              <Copy className="h-3 w-3" />
-              <span className="sr-only">Copy username</span>
-            </Button>
+      <Dialog open={open} onOpenChange={() => setOpen(false)} >
+        <DialogContent>
+          <div className="flex items-center justify-center flex-col gap-6">
+            <img className="w-16 h-16 rounded-full" alt="" src={`https://logo.clearbit.com/${accountDomain}`} />
+            {isEditing ? (
+              <Input 
+                value={editedAccount.title}
+                onChange={(e) => setEditedAccount({...editedAccount, title: e.target.value})}
+                className="text-center font-bold"
+              />
+            ) : (
+              <DialogTitle>{account.title}</DialogTitle>
+            )}
           </div>
-        </div>
-
-        {/* Password */}
-        <div className="border-t border-border/30 px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Password</span>
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium font-mono">
-              {showPassword ? "password123" : "••••••••••••"}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-              <span className="sr-only">
-                {showPassword ? "Hide password" : "Show password"}
-              </span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={handleCopyPassword}
-            >
-              <Copy className="h-3 w-3" />
-              <span className="sr-only">Copy password</span>
-            </Button>
+          
+          <div className="flex flex-col gap-4">
+            {/* Usuario */}
+            <div className="flex flex-col gap-2">
+              <span className="text-secondary font-bold">Usuario</span>
+              <div className="flex items-center justify-between">
+                {isEditing ? (
+                  <Input 
+                    value={editedAccount.username}
+                    onChange={(e) => setEditedAccount({...editedAccount, username: e.target.value})}
+                    className="text-sm"
+                  />
+                ) : (
+                  <span className="text-sm text-gray-500">{account.username}</span>
+                )}
+                {!isEditing && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyUsername();
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                    <span className="sr-only">Copiar usuario</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Contraseña */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-secondary font-bold">Contraseña</span>
+                {!isEditing && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowPassword(!showPassword);
+                    }}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span className="sr-only">
+                      {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    </span>
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center justify-between">
+                {isEditing ? (
+                  <Input 
+                    type={showPassword ? "text" : "password"}
+                    value={editedAccount.password}
+                    onChange={(e) => setEditedAccount({...editedAccount, password: e.target.value})}
+                    className="text-sm font-mono"
+                  />
+                ) : (
+                  <span className="text-sm text-gray-500 font-mono">
+                    {showPassword ? account.password : "********"}
+                  </span>
+                )}
+                {!isEditing && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyPassword();
+                    }}
+                  >
+                    <Copy className="h-4 w-4" />
+                    <span className="sr-only">Copiar contraseña</span>
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Sitio web - solo visible en modo edición */}
+            {isEditing && (
+              <div className="flex flex-col gap-2">
+                <span className="text-secondary font-bold">Sitio web</span>
+                <Input 
+                  value={editedAccount.website}
+                  onChange={(e) => setEditedAccount({...editedAccount, website: e.target.value})}
+                  className="text-sm"
+                  placeholder="https://ejemplo.com"
+                />
+              </div>
+            )}
+            
+            {/* Botones de acción */}
+            <div className="pt-4 border-t flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="w-1/2" 
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedAccount({
+                        username: account.username,
+                        password: account.password,
+                        title: account.title,
+                        website: account.website || ""
+                      });
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    className="w-1/2" 
+                    onClick={handleSaveChanges}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Guardar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="w-1/2" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditing(true);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Editar
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="w-1/2" 
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await handleDeleteAccount();
+                      setOpen(false);
+                    }}
+                  >
+                    Eliminar cuenta
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </CardContent>
-
-      {account.website && (
-        <CardFooter className="p-0">
-          <Button
-            variant="ghost"
-            className="w-full rounded-none h-10 border-t border-border/30 text-primary"
-            onClick={handleVisitWebsite}
-          >
-            <ExternalLink className="mr-2 h-4 w-4" />
-            Visit {getDomain(account.website)}
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -24,17 +24,18 @@ export async function createAccount(values: any) {
   }
 }
 
-export async function editAccount(formData: FormData) {
+export async function editAccount(id: string, values: any) {
   await prisma.onlineAccount.update({
     where: {
-      id: formData.get("id") as string
+      id
     },
     data: {
-      title: formData.get("title") as string,
-      website: formData.get("url") as string,
-      username: formData.get("username") as string,
-      password: formData.get("password") as string,
-      notes: formData.get("notes") as string
+      title: values.title,
+      website: values.website,
+      username: values.username,
+      password: values.password,
+      notes: values.notes,
+      updatedAt: new Date()
     }
   });
 
