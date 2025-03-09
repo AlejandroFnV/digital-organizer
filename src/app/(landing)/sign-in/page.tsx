@@ -3,8 +3,19 @@ import Link from "next/link";
 import { KeyRound } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import SignInForm from "@/modules/auth/components/signin-form";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if(session) {
+    return redirect("/accounts");
+  }
+
   return (
     <div className='container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
       <div className='relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex'>
